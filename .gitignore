@@ -1,6 +1,7 @@
 .gradle
 **/build/
 !src/**/build/
+*.log
 
 ### STS ###
 .apt_generated
