@@ -73,8 +73,10 @@ public class WorkerService {
         Worker worker = getWorker(workerId);
         if (operation.equals(WorkerOperation.STOP)) {
             dockerClient.stopContainerCmd(worker.getContainerId()).exec();
+            log.info("Started worker with id {}", worker);
         } else {
             dockerClient.startContainerCmd(worker.getContainerId()).exec();
+            log.info("Stopped worker with id {}", worker);
         }
     }
 
