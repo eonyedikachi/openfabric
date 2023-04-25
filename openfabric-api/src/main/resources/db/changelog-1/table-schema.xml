@@ -32,13 +32,16 @@
         <addColumn tableName="worker">
             <column name="ports" type="varchar(2000)"/>
             <column name="status" type="varchar(255)"/>
-            <column name="container_id" type="varchar(255)"/>
+            <column name="container_id" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
             <column name="image_id" type="varchar(255)"/>
             <column name="state" type="varchar(255)"/>
             <column name="network_settings" type="varchar(2000)"/>
             <column name="command" type="varchar(2000)"/>
             <column name="labels" type="varchar(2000)"/>
         </addColumn>
+        <addUniqueConstraint tableName="worker" columnNames="container_id" constraintName="uk_container_id"/>
 
 
         <createTable tableName="worker_statistics">
