@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <!-- ############################################################ -->
+    <!--   DBMS SPECIFIC SETUP   -->
+    <!-- ############################################################ -->
+    <property name="uuid_type" value="CHAR(36)" dbms="postgresql"/>
+    <property name="uuid_type" value="uniqueidentifier" dbms="mssql"/>
+    <property name="uuid_type" value="RAW(16)" dbms="oracle"/>
+    <property name="uuid_function" value="uuid_generate_v4()" dbms="postgresql"/>
+    <property name="uuid_function" value="NEWID()" dbms="mssql"/>
+    <property name="uuid_function" value="sys_guid()" dbms="oracle"/>
+
+    <!-- ############################################################ -->
+    <!--  Worker: Add columns  -->
+    <!-- ############################################################ -->
+    <changeSet id="WO_01" author="kachi">
+
+        <preConditions onFail="MARK_RAN" onError="MARK_RAN">
+            <tableExists schemaName="public" tableName="worker"/>
+            <not>
+                <tableExists tableName="worker_statistics"/>
+            </not>
+        </preConditions>
+
+
+        <addColumn tableName="worker">
+            <column name="ports" type="varchar(2000)"/>
+            <column name="status" type="varchar(255)"/>
+            <column name="container_id" type="varchar(255)"/>
+            <column name="image_id" type="varchar(255)"/>
+            <column name="state" type="varchar(255)"/>
+            <column name="network_settings" type="varchar(2000)"/>
+            <column name="command" type="varchar(2000)"/>
+            <column name="labels" type="varchar(2000)"/>
+        </addColumn>
+
+
+        <createTable tableName="worker_statistics">
+            <column name="id" type="${uuid_type}" defaultValueComputed="${uuid_function}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="deleted_at" type="DATETIME"/>
+            <column name="networks" type="VARCHAR(255)"/>
+            <column name="memory_statistics" type="VARCHAR(2000)"/>
+            <column name="blkio_statistics" type="VARCHAR(2000)"/>
+            <column name="cpu_statistics" type="VARCHAR(2000)"/>
+            <column name="num_procs" type="VARCHAR(2000)"/>
+            <column name="pids_statistics" type="VARCHAR(2000)"/>
+            <column name="read" type="VARCHAR(255)"/>
+            <column name="worker_id" type="VARCHAR(255)">
+                <constraints foreignKeyName="fk_worker_statistics_worker_id"
+                             referencedTableName="worker" referencedColumnNames="id"/>
+            </column>
+        </createTable>
+
+
+        <rollback>
+            <dropTable tableName="worker_statistics"/>
+            <dropColumn tableName="worker" columnName="port"/>
+            <dropColumn tableName="worker" columnName="status"/>
+            <dropColumn tableName="worker" columnName="container_id"/>
+            <dropColumn tableName="worker" columnName="image_id"/>
+            <dropColumn tableName="worker" columnName="state"/>
+            <dropColumn tableName="worker" columnName="network_settings"/>
+            <dropColumn tableName="worker" columnName="command"/>
+            <dropColumn tableName="worker" columnName="labels"/>
+            <dropColumn tableName="worker" columnName="worker_statistics_id"/>
+        </rollback>
+
+
+    </changeSet>
+
+
+</databaseChangeLog>
