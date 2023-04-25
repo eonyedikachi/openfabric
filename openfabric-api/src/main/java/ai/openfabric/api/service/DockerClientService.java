@@ -2,6 +2,7 @@ package ai.openfabric.api.service;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DockerClientBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -10,9 +11,11 @@ import javax.annotation.PostConstruct;
 public class DockerClientService {
 
     private DockerClient dockerClient;
+    @Value("${docker.url}")
+    private String dockerUrl;
 
     @PostConstruct
-    public void initializeDockerClient(){
-        dockerClient = DockerClientBuilder.getInstance("tcp://localhost:2375").build();
+    public DockerClient initializeDockerClient(){
+        return DockerClientBuilder.getInstance(dockerUrl).build();
     }
 }
