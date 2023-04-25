@@ -61,3 +61,5 @@ logging:
 node:
   api:
     path: /api/v1
+docker:
+  url: ${env.DOCKER_URL}

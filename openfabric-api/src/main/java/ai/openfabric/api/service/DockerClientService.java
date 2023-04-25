@@ -11,11 +11,15 @@ import javax.annotation.PostConstruct;
 public class DockerClientService {
 
     private DockerClient dockerClient;
+
     @Value("${docker.url}")
     private String dockerUrl;
-
     @PostConstruct
-    public DockerClient initializeDockerClient(){
-        return DockerClientBuilder.getInstance(dockerUrl).build();
+    public void initializeDockerClient(){
+        dockerClient = DockerClientBuilder.getInstance(dockerUrl).build();
+    }
+
+    public DockerClient getDockerClient(){
+        return dockerClient;
     }
 }
