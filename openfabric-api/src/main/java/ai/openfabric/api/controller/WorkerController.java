@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 
 @CrossOrigin
 @Validated
@@ -47,6 +49,12 @@ public class WorkerController {
     @GetMapping(path = "/getStatistics")
     public ResponseEntity<WorkerStatistics> getStatistics(@RequestParam("workerId") String workerId) {
         return ResponseEntity.ok(workerService.getWorkerStatistics(workerId));
+    }
+
+    @PostMapping(path = "/loadFromDocker")
+    public ResponseEntity<Void> loadWorkersFromDocker() throws IOException {
+        workerService.loadWorkersFromDocker();
+        return ResponseEntity.noContent().build();
     }
 
 }
