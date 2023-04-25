@@ -1,19 +1,17 @@
 package ai.openfabric.api.controller;
 
+import ai.openfabric.api.constant.WorkerOperation;
 import ai.openfabric.api.model.Worker;
 import ai.openfabric.api.model.WorkerStatistics;
 import ai.openfabric.api.service.WorkerService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
 
-@CrossOrigin
-@Validated
 @RestController
 @RequestMapping("${node.api.path}/worker")
 public class WorkerController {
@@ -51,6 +49,17 @@ public class WorkerController {
         return ResponseEntity.ok(workerService.getWorkerStatistics(workerId));
     }
 
+    @Operation(summary = "Start/Stop worker with the corresponding worker id",
+            description = "Start/Stop worker with the corresponding worker id")
+    @PostMapping(path = "/initializeWorker")
+    public ResponseEntity<Void> run(@RequestParam("workerId") String workerId, @RequestParam("workerOperation") WorkerOperation workerOperation) throws IOException {
+        workerService.initializeWorker(workerId, workerOperation);
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @Operation(summary = "Load workers from docker to db",
+            description = "Load workers from docker to db")
     @PostMapping(path = "/loadFromDocker")
     public ResponseEntity<Void> loadWorkersFromDocker() throws IOException {
         workerService.loadWorkersFromDocker();

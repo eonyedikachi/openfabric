@@ -1,6 +1,7 @@
 package ai.openfabric.api.service;
 
 
+import ai.openfabric.api.constant.WorkerOperation;
 import ai.openfabric.api.exceptions.DataNotFoundException;
 import ai.openfabric.api.model.Worker;
 import ai.openfabric.api.model.WorkerStatistics;
@@ -35,11 +36,13 @@ public class WorkerService {
     private final WorkerRepository workerRepository;
     private final WorkerStatisticsRepository workerStatisticsRepo;
     private final DockerClientService dockerClientService;
+    DockerClient dockerClient;
 
     public WorkerService(WorkerRepository workerRepository, WorkerStatisticsRepository workerStatisticsRepo, DockerClientService dockerClientService) {
         this.workerRepository = workerRepository;
         this.workerStatisticsRepo = workerStatisticsRepo;
         this.dockerClientService = dockerClientService;
+        dockerClient = dockerClientService.getDockerClient();
     }
 
     public Page<Worker> getPaginatedWorkers(int page, int pageSize) {
@@ -66,11 +69,19 @@ public class WorkerService {
         return worker.getStatistics();
     }
 
+    public void initializeWorker(String workerId, WorkerOperation operation) {
+        Worker worker = getWorker(workerId);
+        if (operation.equals(WorkerOperation.STOP)) {
+            dockerClient.stopContainerCmd(worker.getContainerId()).exec();
+        } else {
+            dockerClient.startContainerCmd(worker.getContainerId()).exec();
+        }
+    }
+
     @Transactional
     public void loadWorkersFromDocker() throws IOException {
-        log.info("About to fetch updated workers list...");
+        log.info("About to load workers from docker...");
         ObjectMapper objectMapper = new ObjectMapper();
-        DockerClient dockerClient = dockerClientService.getDockerClient();
         List<Container> containers = dockerClient.listContainersCmd().withShowAll(true).exec();
         List<String> workerIds = new ArrayList<>();
         List<Worker> workers = new ArrayList<>();
@@ -142,7 +153,7 @@ public class WorkerService {
             });
             workerStatisticsRepo.saveAll(deletedStatisticsList);
         }
-        log.info("Finished fetching updated workers list.");
+        log.info("Finished loading workers from docker.");
     }
 
 }
